@@ -9,11 +9,15 @@
   | VCC_1V8 | 内容5    | 内容6  |
   | VCC_DDR  | 内容2    | 内容3  |
   | VDD_GPU | 内容5    | 内容6  |
-  | 电源域 | 焊接PMIC前 | 焊接PMIC后 |
-  | :----- | :------: | -----: |
-  | VDD_LOGIC  | 内容2    | 内容3  |
-  | VDD_GPU | 内容5    | 内容6  |
-  | VDD_NPU  | 内容2    | 内容3  |
-  | VCC_1V8 | 内容5    | 内容6  |
-  | VCC_DDR  | 内容2    | 内容3  |
-  | VDD_GPU | 内容5    | 内容6  |
+  | VDDA0V9_IMAGE  | 内容2    | 内容3  |
+  | VDDA_0V9 | 内容5    | 内容6  |
+  | VDDA0V9_PMU  | 内容2    | 内容3  |
+  | VCCIO_ACODEC | 内容5    | 内容6  |
+  | VCCIO_SD  | 内容2    | 内容3  |
+  | VCC3V3_PMU | 内容5    | 内容6  |
+   | VCCA_1V8  | 内容2    | 内容3  |
+  | VCCA1V8_PMU | 内容5    | 内容6  |
+  | VCCA1V8_IMAGE  | 内容2    | 内容3  |
+  | VCC3V3_SD | 内容5    | 内容6  |
+  | VCC_3V3  | 内容2    | 内容3  |
+  
