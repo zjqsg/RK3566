@@ -7,6 +7,7 @@
    SOC:RK3566 PMIC:RK809-5 WIFI/BT:AP6212 EMMC TF卡 LPDDR4/LPDDR4X 
 
 ## PCB外观图
+    ![硬件实物图](Hardware/Pictures/PCB1.png)
 
     
 
