@@ -1,4 +1,4 @@
-# 26/4/11 收到板子
+#3 26/4/11 收到板子
  对于正常流程来说是先焊接PMIC然后上电测试电压后才焊接SOC，但是rk3566芯片引脚比较密集，加之身边没有比较专业的设备，为了保险，直接裸板贴了两片SOC，避免淘到有问题的芯片和手工焊接引起的虚焊等风险，并且soc背面有很多0210的小电容需要焊接，不得已只能使用万用表蜂鸣档测量各电源域的通断情况并且做了记录，以这种方法来来观察是否电路正常。（-代表无穷大，X代表数值反复横跳，？代表调一下数值变成无穷大）
   | 电源域 | 只有SOC   | 焊接SOC背面电容 | 焊接PMIC | 上电后电压  |  断电焊接DDR | 
   | :----- | :------: | -----:         |  -----:  | -----: | -----: |
@@ -30,9 +30,10 @@
  ## 烧录MiniloaderAll.bin
   在焊接完成PMIC、SOC和DDR后，在电脑上安装瑞芯微的驱动，这里有个坑，我之前下载的Driverassistant不是最新版的，导致驱动识别不成功，复盘后发现这个版本还没有包含RK3566的驱动。下载最新版后，打开烧录软件已经显示找到了一个Maskrom设备，在烧录完成MiniloaderAll.bin后，成功的读取到了芯片的信息。
   ![](Docs/images/Read ChipInfo.png)
-## 烧录系统
- 在确认当前电路正常后，我便着手准备开始烧录系统事宜，当然，在我绘制PCB阶段，也买了块开发板学习了一下，稍微的补偿了一下Liunx的基础知识，我使用的SDK是野火的LubanCat_Linux_rk356x_SDK,但在编译系统的过程中，遇到了很多的问题。
-  问题1：鲁班猫的板卡是根据ADC采样的值来自动选择dts文件的，但我的硬件上面没有考虑到这个问题，于是我各种查阅资料，好在网上有大佬也搞过这个SDK，虽然芯片不一样，但是也有迹可循。
+## 编译系统镜像
+ 在确认当前电路正常后，我便着手准备开始烧录系统事宜，当然，在我绘制PCB阶段，也买了块开发板学习了一下，稍微的补偿了一下Liunx的基础知识，我使用的SDK是野火的LubanCat_Linux_rk356x_SDK,但在编译系统的过程中，也是遇到了很多的问题。
+
+	问题1：鲁班猫的板卡是根据ADC采样的值来自动选择dts文件的，但我的硬件上面没有考虑到这个问题，于是我各种查阅资料，好在网上有大佬也搞过这个SDK，虽然芯片不一样，但是也有迹可循。
   解决办法：由于我编译的是Debian系统，所以在SDK目录下的Debian/overlay/etc/init.d的boot_init.sh这个文件里面修改，将函数board_info()下RK3566判断下的0100改为自己的dts文件名，
   ```
 		0100)
@@ -64,6 +65,7 @@ board_id() {
 	echo "BOARD_ID:"$BOARD_ID
 }
   ```
+
 问题2：由于Debian10系统已结束生命周期，但是编译Debian系统还需要在线下载一些文件，种种原因导致编译不通过。
 解决办法：查找一番资料后，更换了Debian/ubuntu-build-service/buster-lite-arm64下的config的lb config\下地址更改为国内源
 ```
@@ -90,7 +92,33 @@ lb config \
 >		P: Creating config tree for a ubuntu/buster/amd64 system
 >		zjqsg@ubuntu:~/SDK/debian$
 
-询问Agent后是说由于存档库中的 Release 文件已过期，其数字签名可能不再被系统信任，这可能导致构建过程因验证失败而中断，故找到野火客服质询，给出的办法是将--debootstrap-options替换
+询问Agent后是说由于存档库中的 Release 文件已过期，其数字签名可能不再被系统信任，这可能导致构建过程因验证失败而中断，故找到野火客服质询，给出的办法是将--debootstrap-options替换为下面的代码。
 ```
 --debootstrap-options "--variant=minbase --include=apt-transport-https,gnupg --keyring=/usr/share/keyrings/debian-archive-removed-keys.gpg" \
+```
+
+问题3：在新建直接的dts文件后，要在同级的Makefile文件里加上自己的dts文件名，如下第二个就是我的dts文件
+```
+dtb-$(CONFIG_CPU_RK3568) += \
+	rk356x-lubancat-generic.dtb \
+	rk3566-myboard.dtb \
+	rk3566-lubancat-0.dtb \
+	rk3566-lubancat-1.dtb \
+	rk3566-lubancat-1h.dtb \
+	rk3566-lubancat-1n.dtb \
+	rk3566-lubancat-1io.dtb \
+	rk3566-lubancat-1io-test.dtb \
+	rk3566-lubancat-cm4.dtb \
+	rk3568-lubancat-2.dtb \
+	rk3568-lubancat-2-v1.dtb \
+	rk3568-lubancat-2-v2.dtb \
+	rk3568-lubancat-2-v3.dtb \
+	rk3568-lubancat-2n.dtb \
+	rk3568-lubancat-2n-v2.dtb \
+	rk3568-lubancat-2n-v3.dtb \
+	rk3568-lubancat-2io.dtb \
+	rk3568-lubancat-2h.dtb
+
+endif
+
 ```
