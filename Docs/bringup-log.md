@@ -29,4 +29,4 @@
   
  ## 烧录MiniloaderAll.bin
   在焊接完成PMIC、SOC和DDR后，在电脑上安装瑞芯微的驱动，这里有个坑，我之前下载的Driverassistant不是最新版的，导致驱动识别不成功，复盘后发现这个版本还没有包含RK3566的驱动。下载最新版后，打开烧录软件已经显示找到了一个Maskrom设备，在烧录完成MiniloaderAll.bin后，成功的读取到了芯片的信息。
-  ![]("Read ChinInfo.png")
+  ![](Docs/images/Read ChipInfo.png)
