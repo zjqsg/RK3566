@@ -33,12 +33,12 @@
   在焊接完成PMIC、SOC和DDR后，在电脑上安装瑞芯微的驱动，这里有个坑，我之前下载的Driverassistant不是最新版的，导致驱动识别不成功，复盘后发现这个版本还没有包含RK3566的驱动。下载最新版后，打开烧录软件已经显示找到了一个Maskrom设备，在烧录完成MiniloaderAll.bin后，成功的读取到了芯片的信息。
   ![](Docs/images/Read ChipInfo.png)
   
-## 26/4/15 编译与烧录系统镜像阶段
+## 26/4/15 编译镜像阶段
  在确认当前电路正常后，我便着手准备开始烧录系统事宜，当然，在我绘制PCB阶段，也买了块开发板学习了一下，稍微的补偿了一下Liunx的基础知识，我使用的SDK是野火的LubanCat_Linux_rk356x_SDK,但在编译系统的过程中，也是遇到了很多的问题。
 
 **问题1：设备树的选择**
 - 鲁班猫的板卡是根据ADC采样的值来自动选择dts文件的，但我的硬件上面没有此设计，于是我各种查阅资料，好在网上有大佬也搞过这个SDK，虽然芯片不一样，但是也有迹可循。
-  解决：由于我编译的是Debian系统，所以在SDK目录下的Debian/overlay/etc/init.d的boot_init.sh这个文件里面修改，将函数board_info()下RK3566判断下的0100改为自己的dts文件名，
+- 解决：由于我编译的是Debian系统，所以在SDK目录下的Debian/overlay/etc/init.d的boot_init.sh这个文件里面修改，将函数board_info()下RK3566判断下的0100改为自己的dts文件名，
   ```
 		0100)
 				BOARD_NAME='LubanCat-1N'
@@ -72,7 +72,7 @@ board_id() {
 
 **问题2：Debian10系统已结束生命周期**
 - 编译Debian系统还需要在线下载一些文件，种种原因导致编译不通过。
-解决办法：查找一番资料后，更换了Debian/ubuntu-build-service/buster-lite-arm64下的config的lb config\下地址更改为国内源
+- 解决：更换了Debian/ubuntu-build-service/buster-lite-arm64下的config的lb config\下地址更改为国内源
 ```
 lb config \
  --mirror-bootstrap "https://mirrors.aliyun.com/debian-archive/debian" \
@@ -81,7 +81,7 @@ lb config \
  --mirror-binary "https://mirrors.aliyun.com/debian-archive/debian" \
  --mirror-binary-security "https://mirrors.aliyun.com/debian-archive/debian-security" \
 ```
-- 但是编译时，还是出现问题，这次的提示是
+ 但是编译时，还是出现问题，这次的提示是
 
 >     zjqsg@ubuntu:~/SDK/debian$ lb config \
 >     --distribution buster \
@@ -104,12 +104,13 @@ lb config \
 **小节：
 	构建Debian10系统比较坑，耗时很长，最好前期把该搞的都搞好，构建好一次，下次就不需要重新构建了，如果需要修改设备树文件，只单独构建boot.img文件，重新打包就好了，具体教程可以看野火的文档 “嵌入式Linux镜像构建与部署——基于LubanCat-RK系列板卡”**
 
-## 烧录镜像 -- 噩梦的开始
-问题1：发现串口没有输出日志
+## 烧录镜像阶段
+
+**问题1：发现串口没有输出日志**
 	在编译完成程序后，插上SD卡，上电后电流大概140ma，比没插SD卡前多了20ma，连接上调试串口后，并且终端非常卡，按下复位按键后，电流下降上升正常，并且之前也能检查到芯片ID，于是我检查了原理图和PCB，两条线路之间只串联了一个电阻，感觉是这个电阻的问题，于是一通捣鼓，拆下一量100Ω，估计是自己焊接的时候拿错料了，本来可以换上22欧，为了不想再返工拆，直接换上了0欧电阻，上电后，毫无疑问的也没有日志被打印，接下来就要大胆怀疑了，我先怀疑是原理图和PCB的问题，但是在观看其他同类soc的连接引脚后，发现是没有问题的，于是又检查了一下SD卡槽的焊接，也是万用表打了一下SD卡识别引脚电平，也是没有问题，于是我询问了一下AI,AI表示你的设备树&sdmmc0 节点可能有问题，虽然这个节点我没有动它，但我还是检查了一遍，也跟着AI指导改了一下，一顿“构建-打包-烧录”搞得我脑袋都大了，最后，我怀疑是SD卡有问题... 但是换了个SD卡还是不行，由于连续几天下班后熬夜搞这个，有点累了，索性摆烂了一天，给自己放了个假。
 解决办法：休息好了，脑袋比较清晰，第二天再检查发现竟然是sdmmc0上的clk串联电阻没有焊接... 焊接好后，打印出来日志了。
 
-问题2：开启npu导致kernel Panic
+**问题2：开启npu导致kernel Panic**
 	解决了串口问题后，电流上升到了200ma作用，但是日志最后end Kernel panic - not syncing: panic_on_set_idle set ... 喂给AI后表示是npu电源域导致的内核panic。
 
 解决方法：将npu相关的节点的status状态由okay改为disabled，如下所示。（暂时不寻找原因，先进入系统再说）
@@ -131,7 +132,7 @@ lb config \
 
 ```
 
-问题3： ALERT!  /dev/mmcblk1p3 does not exist.  Dropping to a shell!
+**问题3： ALERT!  /dev/mmcblk1p3 does not exist.  Dropping to a shell!**
 	解决了npu相关的问题，又卡到这个位置
 >	Gave up waiting for root file system device.  Common problems:
 >	Boot args (cat /proc/cmdline)
@@ -147,7 +148,7 @@ lb config \
 >	鲁班猫日志    [    0.208999] rk808 0-0020: chip id: 0x8090
 I2C没有识别到PMIC！有可能是这个原因导致的后面的出错，于是我先着手解决这个问题。
 
-问题4：检测不到rk809-5和tcs4525的地址
+**问题4：检测不到rk809-5和tcs4525的地址**
 
 起初，我怀疑是上拉电阻的原因，之前使用的是2.2k，但是换上4.7k后还是没有。然后测量上拉电阻的电压，3.3V正常，但是还是不行。然后，我又去PCB查看i2c的走线，虽然走线有点拉？看起来也还是没问题的。由于芯片底下没有引出测试点，我只能测量从上拉到PMIC的通断，结果还是没问题，最后，我怀疑是SOC是不是被我用热风枪搞来搞去搞虚焊了... 然后这几天熬夜又熬的脑袋晕晕的，于是乎，摆烂睡觉，第二天突然一个激灵，想起来量了一下I2C的对地通断，发现是I2C的SDA对地短路。那就是RK809或者tcs4525的SDA短路了，我宁愿相信rk809有问题都不会想tcs4525会有问题，因为tcs4525是BGA的，焊接麻烦，但是现实是我卸掉rk809，SDA还是对地短路，没办法了，还是卸掉了Tcs4525，清理焊盘的时候差点就把焊盘搞废掉了，tcs4525下面的几个地的绿油都搞掉了... 实在不想再焊接一版了，硬着头皮焊上去了，万幸没有短路，最后，出乎意料的顺利，上电后成功后直接进入系统，看来问题3的问题就是这个导致的。
 
