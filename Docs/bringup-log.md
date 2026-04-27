@@ -32,4 +32,60 @@
   ![](Docs/images/Read ChipInfo.png)
 ## 烧录系统
  在确认当前电路正常后，我便着手准备开始烧录系统事宜，当然，在我绘制PCB阶段，也买了块开发板学习了一下，稍微的补偿了一下Liunx的基础知识，我使用的SDK是野火的LubanCat_Linux_rk356x_SDK,但在编译系统的过程中，遇到了很多的问题。
-  第一就是鲁班猫的板卡是根据ADC采样的值来自动选择dts文件的，但我的硬件上面没有考虑到这个问题，于是我各种查阅资料，好在网上有大佬也搞过这个SDK，虽然芯片不一样，但是也有迹可循。
+  问题1：鲁班猫的板卡是根据ADC采样的值来自动选择dts文件的，但我的硬件上面没有考虑到这个问题，于是我各种查阅资料，好在网上有大佬也搞过这个SDK，虽然芯片不一样，但是也有迹可循。
+  解决办法：由于我编译的是Debian系统，所以在SDK目录下的Debian/overlay/etc/init.d的boot_init.sh这个文件里面修改，将函数board_info()下RK3566判断下的0100改为自己的dts文件名，
+  ```
+		0100)
+				BOARD_NAME='LubanCat-1N'
+				BOARD_DTB='rk3566-myboard.dtb'
+				BOARD_uEnv='uEnv.txt'
+  ```
+并且更改board_id()函数如下 注释掉获取ADC值的步骤，直接填写BOARD_ID的值去对应board_info()函数判断的值，这样在uboot结束后就会指向你的dts文件。
+  ```
+board_id() {
+	#ADC_voltage_scale=$(cat /sys/bus/iio/devices/iio\:device0/in_voltage_scale)
+	#echo "ADC_voltage_scale:"$ADC_voltage_scale
+
+	SOC_type=$(cat /proc/device-tree/compatible | cut -d,  -f 3 | sed 's/\x0//g')
+	echo "SOC_type:"$SOC_type
+
+	#ADC_CH2_RAW=$(cat /sys/bus/iio/devices/iio\:device0/in_voltage2_raw)
+	#echo "ADC_CH2_RAW:"$ADC_CH2_RAW
+	#ADC_CH3_RAW=$(cat /sys/bus/iio/devices/iio\:device0/in_voltage3_raw)
+	#echo "ADC_CH3_RAW:"$ADC_CH3_RAW
+
+	#get_index $ADC_CH2_RAW
+	#ADC_CH2_INDEX=$INDEX
+
+	#get_index $ADC_CH3_RAW
+	#ADC_CH3_INDEX=$INDEX
+
+	BOARD_ID="0100"
+	echo "BOARD_ID:"$BOARD_ID
+}
+  ```
+问题2：由于Debian10系统已结束生命周期，但是编译Debian系统还需要在线下载一些文件，种种原因导致编译不通过。
+解决办法：查找一番资料后，更换了Debian/ubuntu-build-service/buster-lite-arm64下的config的lb config\下地址更改为国内源
+```
+lb config \
+ --mirror-bootstrap "https://mirrors.aliyun.com/debian-archive/debian" \
+ --mirror-chroot "https://mirrors.aliyun.com/debian-archive/debian" \
+ --mirror-chroot-security "https://mirrors.aliyun.com/debian-archive/debian-security" \
+ --mirror-binary "https://mirrors.aliyun.com/debian-archive/debian" \
+ --mirror-binary-security "https://mirrors.aliyun.com/debian-archive/debian-security" \
+```
+但是编译时，还是出现问题，这次的提示是
+#----------------------------
+zjqsg@ubuntu:~/SDK/debian$ lb config \
+>     --distribution buster \
+>     --archive-areas "main contrib non-free" \
+>     --mirror-bootstrap http://archive.debian.org/debian \
+>     --mirror-chroot http://archive.debian.org/debian \
+>     --mirror-binary http://archive.debian.org/debian \
+>     --parent-mirror-chroot-security http://archive.debian.org/debian-security \
+>     --parent-mirror-binary http://archive.debian.org/debian \
+>     --apt-options "--yes -o Acquire::Check-Valid-Until=false"
+[2026-04-15 20:28:21] lb config --distribution buster --archive-areas main contrib non-free --mirror-bootstrap http://archive.debian.org/debian --mirror-chroot http://archive.debian.org/debian --mirror-binary http://archive.debian.org/debian --parent-mirror-chroot-security http://archive.debian.org/debian-security --parent-mirror-binary http://archive.debian.org/debian --apt-options --yes -o Acquire::Check-Valid-Until=false
+P: Creating config tree for a ubuntu/buster/amd64 system
+zjqsg@ubuntu:~/SDK/debian$
+#----------------------------
