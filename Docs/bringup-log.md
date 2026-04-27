@@ -87,8 +87,8 @@ lb config \
 >     --apt-options "--yes -o Acquire::Check-Valid-Until=false"
 > 	  --[2026-04-15 20:28:21] lb config --distribution buster --archive-areas main contrib non-free --mirror-bootstrap http://archive.debian.org/debian --mirror-chroot >http://archive.debian.org/debian --mirror-binary
 >		http://archive.debian.org/debian --parent-mirror-chroot-security http://archive.debian.org/debian-security --parent-mirror->binary http://archive.debian.org/debian --apt-options --yes -o Acquire::Check-Valid-Until=false
->	P: Creating config tree for a ubuntu/buster/amd64 system
->	zjqsg@ubuntu:~/SDK/debian$
+>		P: Creating config tree for a ubuntu/buster/amd64 system
+>		zjqsg@ubuntu:~/SDK/debian$
 
 询问Agent后是说由于存档库中的 Release 文件已过期，其数字签名可能不再被系统信任，这可能导致构建过程因验证失败而中断，故找到野火客服质询，给出的办法是将--debootstrap-options替换
 ```
