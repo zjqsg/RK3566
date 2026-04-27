@@ -9,6 +9,8 @@
 ## PCB外观图
     ![硬件实物图](https://github.com/zjqsg/RK3566/blob/main/Hardware/Pictures/PCB1.png)
 
+## 调试记录
+
     
 
     
