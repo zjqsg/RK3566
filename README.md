@@ -1,15 +1,75 @@
-## 简介
-    本项目是一个基于瑞芯微RK3566芯片的Linux开发板，个人兴趣和学习的驱动让我开始了这个项目。由于个人学习使用，没有过多在意外形，参考了很多rk3566开发板的外形，大致规划了板载资源和外设。
+# RK3566 自定义最小系统板 Bring-up 项目
 
-## 引出接口 
-    USB2.0 *2 /USB3.0 *1 /HDMI *1 /MIPI DSI *1 /MIPI CSI *1 /以太网 *1 /MIC *1 /SPEAK *1 /40pin_GPIO *1 /3pin_DEBUG *1
-## 板载资源
-   SOC:RK3566 PMIC:RK809-5 WIFI/BT:AP6212 EMMC TF卡 LPDDR4/LPDDR4X 
+本项目是一个基于瑞芯微RK3566芯片的Linux开发板，个人兴趣和学习的驱动让我开始了这个项目，从裸 RK3566 芯片焊接、电源调试、硬件问题修复，到成功启动 Debian 系统的完整实战记录。
 
-## PCB外观图
-    ![硬件实物图](https://github.com/zjqsg/RK3566/blob/main/Hardware/Pictures/PCB1.png)
+**当前状态**：✅ 已成功启动 Debian 10 Lite 系统（最小系统稳定运行）
 
-## 调试记录
+**已完成的焊接**：
+- SoC：RK3566
+- PMIC：RK809
+- CPU DCDC：TCS4525
+- 内存：LPDDR4 2GB
+- 存储：Micro SD 卡槽
+
+---
+**待焊接/调试**
+- USB2.0/USB3.0
+- 有线网口
+- WiFi+Bluetooth
+- 40Pin GPIO排针（兼容鲁班猫1N）
+- eMMC
+- HDMI/MIPI CSI/MIPI DSI
+
+这些外设将在设备稳定后逐步焊接，并编写对应的驱动和设备树节点。
+
+**下一步计划**
+- 解决npu导致内核Panic的问题
+- 焊接验证USB2.0/3.0
+
+## 项目亮点
+
+- 从**裸芯片**开始完成完整 Bring-up
+- 成功解决 I2C SDA 对地短路、pd_npu kernel panic 等多个硬件+软件问题
+- 积累了丰富的电源域调试、设备树适配、启动流程优化经验
+
+这是一个典型的**软硬结合**项目，展示了从硬件焊接到内核启动的全流程能力。
+
+---
+
+## 快速导航
+
+- [详细 Bring-up 记录](./docs/bringup-log.md)
+- [硬件文件](./hardware/)
+- [设备树文件](./software/dts/rk3566-myboard.dts)
+- [实物照片](./images/)
+
+---
+
+## 主要解决的问题
+
+| 问题 | 现象 | 解决方法 |
+|------|------|----------|
+| I2C 无法识别 | `i2cdetect` 显示全部地址 valid | 定位并清理 SDA 对地短路 |
+| 根文件系统挂载失败 | ALERT! /dev/mmcblk1p3 does not exist | 使用 `resize2fs` 扩展分区 |
+| Kernel Panic | pd_npu ack failed | 临时禁用 NPU 电源域，后续计划完善 |
+| 串口无输出 | 无日志 | 补焊 SDMMC0 CLK 串联电阻 |
+
+更多细节请查看 [详细 Bring-up 记录](./docs/bringup-log.md)。
+
+---
+
+## 待办事项
+
+- 完善 power-controller 配置，正常开启 NPU
+- 支持 eMMC 启动
+- 添加 WiFi / USB 等外设驱动
+- 优化功耗与温度控制
+
+---
+
+欢迎 Star、Issue 和讨论！
+
+如果你也在做 RK356x 自定义板，欢迎交流经验。
 
     
 
