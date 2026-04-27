@@ -129,9 +129,9 @@ lb config \
 问题3： ALERT!  /dev/mmcblk1p3 does not exist.  Dropping to a shell!
 	解决了npu相关的问题，又卡到这个位置
 >	Gave up waiting for root file system device.  Common problems:
->	- Boot args (cat /proc/cmdline)
->   - Check rootdelay= (did the system wait long enough?)
-> 	- Missing modules (cat /proc/modules; ls /dev)
+>	Boot args (cat /proc/cmdline)
+> 	Check rootdelay= (did the system wait long enough?)
+> 	Missing modules (cat /proc/modules; ls /dev)
 >	ALERT!  /dev/mmcblk1p3 does not exist.  Dropping to a shell!
 
 由于此时对系统还不是很了解，走了很多弯路，网上和我这个情况相似的基本没有几个，也没有找到办法，但是呼吸灯已经闪起来了，看起来设备树的已经成功加载了？于是还是先喂AI,AI表示可能有以下原因
