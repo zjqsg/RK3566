@@ -4,7 +4,7 @@
 
 **当前状态**：✅ 已成功启动 Debian 10 Lite 系统（最小系统稳定运行）
 
-![2](./Hardware/pictures/PCB2.png)
+![2](../Hardware/pictures/PCB2.png)
 
 **已完成的焊接**：
 - SoC：RK3566
