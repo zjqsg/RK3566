@@ -53,7 +53,7 @@
 | I2C 无法识别 | `i2cdetect` 显示全部地址 valid | 定位并清理 SDA 对地短路 |
 | 根文件系统挂载失败 | ALERT! /dev/mmcblk1p3 does not exist | 使用 `resize2fs` 扩展分区 |
 | Kernel Panic | pd_npu ack failed | 临时禁用 NPU 电源域，后续计划完善 |
-| 串口无输出 | 无日志 | 补焊 SDMMC0 CLK 串联电阻 |
+| 串口无输出 | 无日志 | 将电阻减小到22欧 |
 
 更多细节请查看 [详细 Bring-up 记录](./docs/bringup-log.md)。
 
