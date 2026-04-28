@@ -41,7 +41,7 @@
 ## 快速导航
 
 - [详细 Bring-up 记录](./Docs/bringup-log.md)
-- [硬件文件](./hardware/)
+- [硬件文件](./Hardware/)
 - [设备树文件](./software/dts/rk3566-myboard.dts)
 - [实物照片](./images/)
 
@@ -56,7 +56,7 @@
 | Kernel Panic | pd_npu ack failed | 临时禁用 NPU 电源域，后续计划完善 |
 | 串口无输出 | 无日志 | 将电阻减小到22欧 |
 
-更多细节请查看 [详细 Bring-up 记录](./docs/bringup-log.md)。
+更多细节请查看 [详细 Bring-up 记录](./Docs/bringup-log.md)。
 
 ---
 
