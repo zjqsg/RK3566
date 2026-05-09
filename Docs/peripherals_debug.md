@@ -49,7 +49,7 @@ USB2.0/3.0的调试比较简单，在焊接完成外围电路后，在DTS里面�
 ```
 烧录后
 
-##AP6212适配固件
+## AP6212适配固件
 
 由于使用的鲁班猫SDK中没有适配AP6212的固件，所以要手动适配，第一步是要配置menuconfig，
 在sdk的kernel目录使用
@@ -58,7 +58,7 @@ make ARCH=arm64 rockchip_linux_defconfig menuconfig
 ···
 按下/键搜索，输入AP6，第一个就是，按下1，即可跳转，先将设置 [*]   Broadcom Wireless Device Driver Support  ---> 进入选项后，将
 
-##HDIM调试
+## HDIM调试
   bringup时使用是Debian lite的镜像，为了使用HDMI，我重新构建了xfec的镜像系统，我先通过VNC远程桌面测试了一下，结果很好，成功的显示了桌面，然后我在dts里面使用了鲁班猫的HDMI头文件，但是在连接到显示器的时候出现了问题，部分日志如下，在uboot阶段
 ```
 hdmi@fe0a0000:  detailed mode clock 148500 kHz, flags[5]
