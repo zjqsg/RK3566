@@ -1,10 +1,8 @@
-<img width="801" height="704" alt="image" src="https://github.com/user-attachments/assets/85ebe3a1-5a27-4ddc-ad14-cd8130f7747d" /># RK3566 自定义最小系统板 Bring-up 项目
-
+# RK3566 自定义最小系统板 Bring-up 项目
+<img src="https://github.com/zjqsg/RK3566/blob/main/Hardware/Pictures/PCB1.png"](https://github.com/zjqsg/RK3566/blob/main/Hardware/Pictures/PCB2.png>
 本项目是一个基于瑞芯微RK3566芯片的Linux开发板，个人兴趣和学习的驱动让我开始了这个项目，从裸 RK3566 芯片焊接、电源调试、硬件问题修复，到成功启动 Debian 系统的完整实战记录。
 
 **当前状态**：✅ 已成功启动 Debian 10 Lite 系统（最小系统稳定运行）
-
-<img src="https://github.com/zjqsg/RK3566/blob/main/Hardware/Pictures/PCB1.png">
 
 **已完成的焊接**：
 - SoC：RK3566
