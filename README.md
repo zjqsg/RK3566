@@ -1,4 +1,4 @@
-# RK3566 自定义最小系统板 Bring-up 项目
+<img width="801" height="704" alt="image" src="https://github.com/user-attachments/assets/85ebe3a1-5a27-4ddc-ad14-cd8130f7747d" /># RK3566 自定义最小系统板 Bring-up 项目
 
 本项目是一个基于瑞芯微RK3566芯片的Linux开发板，个人兴趣和学习的驱动让我开始了这个项目，从裸 RK3566 芯片焊接、电源调试、硬件问题修复，到成功启动 Debian 系统的完整实战记录。
 
@@ -11,15 +11,14 @@
 - PMIC：RK809
 - CPU DCDC：TCS4525
 - 内存：LPDDR4 2GB
-- 存储：Micro SD 卡槽
+- 存储：Micro SD 卡槽/EMMC
+- 接口：USB2.0/3.0
+- WIFI/BL:AP6212(G更换AP6256)
 
 ---
 **待焊接/调试**
-- USB2.0/USB3.0
 - 有线网口
-- WiFi+Bluetooth
 - 40Pin GPIO排针（兼容鲁班猫1N）
-- eMMC
 - HDMI/MIPI CSI/MIPI DSI
 
 这些外设将在设备稳定后逐步焊接，并编写对应的驱动和设备树节点。
@@ -51,10 +50,11 @@
 
 | 问题 | 现象 | 解决方法 |
 |------|------|----------|
-| I2C 无法识别 | `i2cdetect` 显示全部地址 valid | 定位并清理 SDA 对地短路 |
-| 根文件系统挂载失败 | ALERT! /dev/mmcblk1p3 does not exist | 使用 `resize2fs` 扩展分区 |
+| I2C 无法识别 | 找不到PMIC器件，导致电源初始化失败，系统挂载失败 | 定位并清理 SDA 对地短路 |
+| 串口无输出 | 无日志 | 将串联电阻换成0欧 |
 | Kernel Panic | pd_npu ack failed | 临时禁用 NPU 电源域，后续计划完善 |
-| 串口无输出 | 无日志 | 将电阻减小到22欧 |
+| AP6212固件适配 | --- | 移植AP6212固件 |
+| HDMI | 屏幕黑屏，但日志状态已连接 | 原理图问题 |
 
 更多细节请查看 [详细 Bring-up 记录](./Docs/bringup-log.md)。
 
@@ -63,10 +63,8 @@
 ## 待办事项
 
 - 完善 power-controller 配置，正常开启 NPU
-- 支持 eMMC 启动
-- 添加 WiFi / USB 等外设驱动
 - 优化功耗与温度控制
-
+- 压力测试
 ---
 
 欢迎 Star、Issue 和讨论！
