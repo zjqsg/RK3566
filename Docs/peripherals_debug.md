@@ -92,7 +92,7 @@ make ARCH=arm64 lubancat2_defconfig menuconfig
 	};
 };
 ```
-在根节点后追加SDIO1的和引脚控制器节点
+在根节点后追加SDIO1的和pinctrl引脚控制器节点
 ```
 &sdmmc1 {
 	max-frequency = <150000000>;
