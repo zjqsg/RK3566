@@ -60,8 +60,9 @@ make ARCH=arm64 lubancat2_defconfig menuconfig
 ```
 [*]   Broadcom Wireless Device Driver Support  --->
 ```
-进入选项后，如图所示，设置固件的地址
-<img  width=400 src="https://github.com/zjqsg/RK3566/blob/main/Docs/images/kernel_ap6212.png">
+进入选项后，如图所示并设置固件的地址
+<img src="https://github.com/zjqsg/RK3566/blob/main/Docs/images/kernel_ap6212.png">
+.bin和.txt文件改成AP6212的固件名称。然后我将固件通过u盘使用USB接口复制到相应的位置，reboot后即可完成固件适配，
 
 ## HDIM调试
   bringup时使用是Debian lite的镜像，为了使用HDMI，我重新构建了xfec的镜像系统，我先通过VNC远程桌面测试了一下，结果很好，成功的显示了桌面，然后我在dts里面使用了鲁班猫的HDMI头文件，但是在连接到显示器的时候出现了问题，部分日志如下，在uboot阶段
@@ -141,7 +142,6 @@ root@lubancat:~# cat /sys/class/drm/card0-HDMI-A-1/modes
 640x480
 640x480
 720x400
-root@lubancat:~# echo on > /sys/class/drm/card0-HDMI-A-1/status
 ```
 有了之前的调试经验和思路，我先检查了焊接的部分，其中两个ESD焊点不饱满，我就重新焊接了一下，由于HDMI外围电路很简单，我就没有检查仔细检查原理图，然后就开始了软件上的各种折腾...最后还是没搞好，然后我用万用表打了一下通断，**发现信号在ESD两端短路了**，通过查看类似芯片的手册和泰山派的原理图，我发现在ESD的两端引脚内部不是连起来的，这真是一个很不应该出现的错误，因为copy原理图符号的时候没有注意，以为esd内部是相通的，所以导致了这个问题...。
 如下图
