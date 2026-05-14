@@ -49,10 +49,10 @@ USB2.0/3.0的调试比较简单，在焊接完成外围电路后，在DTS里面�
 ```
 烧录后
 
-## AP6212适配固件
-
+# AP6212无线网卡
+## 1.固件适配
 由于使用的鲁班猫SDK中没有适配AP6212的固件，所以要手动适配，第一步是要配置menuconfig，
-在sdk的kernel目录使用
+在sdk的kernel目录运行
 ···
 make ARCH=arm64 lubancat2_defconfig menuconfig
 ···
@@ -60,10 +60,79 @@ make ARCH=arm64 lubancat2_defconfig menuconfig
 ```
 [*]   Broadcom Wireless Device Driver Support  --->
 ```
-进入选项后，如图所示并设置固件的地址
+进入选项后，如图所示并设置固件的地址。
 <img src="https://github.com/zjqsg/RK3566/blob/main/Docs/images/kernel_ap6212.png">
-.bin和.txt文件改成AP6212的固件名称。然后我将固件通过u盘使用USB接口复制到相应的位置，reboot后即可完成固件适配，
 
+由于我已经调通USB端口，所以可以使用读卡器或者U盘拷贝到系统的lib/firmware/AP6256里面。
+另外一种方法就是在编译系统的过程中将固件文件复制到SDK/debian/overlay-firmware/usr/lib/firmware里面，在构建debian系统时会自动添加进去。
+**注意：并且从网上了解到AP6212有A0和A1版本，通过模块上的丝印即可分辨**
+
+## 2.dts设备树适配
+在根节点下配置AP62的电源和中断配置
+```
+/{
+	sdio_pwrseq: sdio-pwrseq {
+		compatible = "mmc-pwrseq-simple";
+		clocks = <&rk809 1>;
+		clock-names = "ext_clock";
+		pinctrl-names = "default";
+		pinctrl-0 = <&wifi_enable_h>;
+		post-power-on-delay-ms = <200>;
+		reset-gpios = <&gpio2 RK_PB1 GPIO_ACTIVE_LOW>;
+	};
+
+	wireless_wlan: wireless-wlan {
+		compatible = "wlan-platdata";
+		pinctrl-names = "default";
+		pinctrl-0 = <&wifi_host_wake_irq>;
+		WIFI,host_wake_irq = <&gpio2 RK_PB2 GPIO_ACTIVE_HIGH>;
+		rockchip,grf = <&grf>;
+		wifi_chip_type = "ap6212";
+		status = "okay";
+	};
+};
+```
+在根节点后追加SDIO1的和引脚控制器节点
+```
+&sdmmc1 {
+	max-frequency = <150000000>;
+	supports-sdio;
+	bus-width = <4>;
+	disable-wp;
+	cap-sd-highspeed;
+	cap-sdio-irq;
+	keep-power-in-suspend;
+	mmc-pwrseq = <&sdio_pwrseq>;
+	non-removable;
+	pinctrl-names = "default";
+	pinctrl-0 = <&sdmmc1_bus4 &sdmmc1_cmd &sdmmc1_clk>;
+	sd-uhs-sdr104;
+	vmmc-supply = <&vcc_3v3>; // 主电源（VDD）为3.3V，由 vcc_3v3 这个 regulator 提供
+    vqmmc-supply = <&vcc_1v8>; // IO 电源（VDDIO）为1.8V（用于 UHS 或 SDIO 设备的信号电平）
+	status = "okay";
+};
+
+&pinctrl {
+	sdio-pwrseq {
+		wifi_enable_h: wifi-enable-h {
+			rockchip,pins = <2 RK_PB1 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+
+	wireless-wlan {
+		wifi_host_wake_irq: wifi-host-wake-irq {
+			rockchip,pins = <2 RK_PB2 RK_FUNC_GPIO &pcfg_pull_down>;
+		};
+	};
+
+	wireless-bluetooth {
+		uart1_gpios: uart1-gpios {
+			rockchip,pins = <2 RK_PB5 RK_FUNC_GPIO &pcfg_pull_none>;
+		};
+	};
+	
+};
+```
 ## HDIM调试
   bringup时使用是Debian lite的镜像，为了使用HDMI，我重新构建了xfec的镜像系统，我先通过VNC远程桌面测试了一下，结果很好，成功的显示了桌面，然后我在dts里面使用了鲁班猫的HDMI头文件，但是在连接到显示器的时候出现了问题，部分日志如下，在uboot阶段
 ```
