@@ -67,8 +67,8 @@ make ARCH=arm64 lubancat2_defconfig menuconfig
 另外一种方法就是在编译系统的过程中将固件文件复制到SDK/debian/overlay-firmware/usr/lib/firmware里面，在构建debian系统时会自动添加进去。
 **注意：并且从网上了解到AP6212有A0和A1版本，通过模块上的丝印即可分辨**
 
-## 2.dts设备树适配
-在根节点下配置AP62的电源和中断配置
+## 2.dts设备树适配（只适测试了wifi，蓝牙还没有搞）
+在根节点下配置AP62的电源引脚和中断配置引脚
 ```
 /{
 	sdio_pwrseq: sdio-pwrseq {
@@ -92,7 +92,7 @@ make ARCH=arm64 lubancat2_defconfig menuconfig
 	};
 };
 ```
-在根节点后追加SDIO1的和pinctrl引脚控制器节点
+在根节点后追加SDIO1的配置和pinctrl引脚控制器节点
 ```
 &sdmmc1 {
 	max-frequency = <150000000>;
@@ -124,15 +124,12 @@ make ARCH=arm64 lubancat2_defconfig menuconfig
 			rockchip,pins = <2 RK_PB2 RK_FUNC_GPIO &pcfg_pull_down>;
 		};
 	};
-
-	wireless-bluetooth {
-		uart1_gpios: uart1-gpios {
-			rockchip,pins = <2 RK_PB5 RK_FUNC_GPIO &pcfg_pull_none>;
-		};
-	};
 	
 };
 ```
+到此，wifi的设备树就适配好了，但是在我烧录镜像后，发现并没有成功，因为系统没有.ko文件，在查阅资料后，发现是普遍的是将.ko文件打包成deb包，目的便于升级和维护。
+于是在SDK目录下面发现了这些deb包，解压复制data里的modules文件，复制到系统的lib目录下，然后reboot，
+
 ## HDIM调试
   bringup时使用是Debian lite的镜像，为了使用HDMI，我重新构建了xfec的镜像系统，我先通过VNC远程桌面测试了一下，结果很好，成功的显示了桌面，然后我在dts里面使用了鲁班猫的HDMI头文件，但是在连接到显示器的时候出现了问题，部分日志如下，在uboot阶段
 ```
