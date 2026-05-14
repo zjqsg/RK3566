@@ -149,4 +149,4 @@ root@lubancat:~# cat /sys/class/drm/card0-HDMI-A-1/modes
 <img  width=400 src="https://github.com/zjqsg/RK3566/blob/main/Docs/images/hdmi_esd.png">
 <img  width=400 src="https://github.com/zjqsg/RK3566/blob/main/Docs/images/hdmi_pcb.png">
 
-解决方法就是把这些引脚都短路掉，焊接完成后，成功的显示了HDMI.
+使用飞线将引脚连接上后再用热风枪把ESD器件吹上去，焊接完成后，万用表测试信号成功的传输了过去，插上显示屏后成功显示了画面。
