@@ -62,11 +62,14 @@ make ARCH=arm64 lubancat2_defconfig menuconfig
 ```
 进入选项后，如图所示并设置固件的地址。
 <img src="https://github.com/zjqsg/RK3566/blob/main/Docs/images/kernel_ap6212.png">
+
 我以AP6256为例子，如果你的是AP6212，可以设置为
 ```
 lib/firmwar/AP6212/fw_bcm43438a0.bin (根据AP212的版本选择A0还是A1)
 lib/firmwar/AP6212/nvram.txt
 ```
+更改成功后，保存后退出，运行make ARCH=arm64 savedefconfig更新配置文件。
+最后用配置文件替换默认配置文件使用cp defconfig arch/arm64/configs/rockchip_linux_defconfig
 由于我已经调通USB端口，所以可以使用读卡器或者U盘拷贝到系统的lib/firmware/AP6256里面。
 另外一种方法就是在编译系统的过程中将固件文件复制到SDK/debian/overlay-firmware/usr/lib/firmware里面，在构建debian系统时会自动添加进去。
 
