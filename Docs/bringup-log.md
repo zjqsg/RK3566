@@ -133,6 +133,7 @@ lb config \
 };
 
 ```
+更新，在完成其他的外设调试后，我发现是rk809的相关电源引脚虚焊导致，补焊后，成功开启npu。
 
 **问题3： ALERT!  /dev/mmcblk1p3 does not exist.  Dropping to a shell!**
 
