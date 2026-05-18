@@ -12,14 +12,12 @@
 - 内存：LPDDR4 2GB
 - 存储：Micro SD 卡槽/EMMC
 - 接口：USB2.0/3.0
-- WIFI/BL:AP6212(G更换AP6256)
+- WIFI/BL:AP6212(更换AP6256)
+- 以太网
 - HDMI
-
----
+  
 **待焊接/调试**
-- 有线网口
 - 40Pin GPIO排针（兼容鲁班猫1N）
-- HDMI/MIPI CSI/MIPI DSI
 
 这些外设将在设备稳定后逐步焊接，并编写对应的驱动和设备树节点。
 
