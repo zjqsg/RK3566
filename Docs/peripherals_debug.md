@@ -69,8 +69,9 @@ lib/firmwar/AP6212/fw_bcm43438a0.bin (根据AP212的版本选择A0还是A1)
 lib/firmwar/AP6212/nvram.txt
 ```
 更改成功后，保存后退出，运行make ARCH=arm64 savedefconfig更新配置文件。
-最后用配置文件替换默认配置文件使用cp defconfig arch/arm64/configs/rockchip_linux_defconfig
-由于我已经调通USB端口，所以可以使用读卡器或者U盘拷贝到系统的lib/firmware/AP6256里面。
+使用cp defconfig arch/arm64/configs/rockchip_linux_defconfig替换默认配置文件。
+
+由于我已经调通USB端口，所以可以使用读卡器或者U盘将固件拷贝到系统的lib/firmware/AP6256里面。
 另外一种方法就是在编译系统的过程中将固件文件复制到SDK/debian/overlay-firmware/usr/lib/firmware里面，在构建debian系统时会自动添加进去。
 
 
@@ -132,7 +133,7 @@ lib/firmwar/AP6212/nvram.txt
 	
 };
 ```
-到此，wifi的设备树就适配好了，但是在我烧录镜像后，发现并没有成功，因为系统没有.ko文件，在查阅资料后，发现是普遍的是将.ko文件打包成deb包，目的便于升级和维护。
+到此，AP6256的固件（wifi）就适配好了，但是在我烧录镜像后，发现并没有成功，因为系统没有.ko文件，在查阅资料后，发现是普遍的是将.ko文件打包成deb包，目的便于升级和维护。
 于是在SDK目录下面发现了这些deb包，解压复制data里的modules文件，复制到系统的lib目录下，但是reboot后，发现信号非常差，由于我当时绘制射频线的时候这根线没有匹配阻抗，经过计算现在的阻抗是27欧左右，由于手头没有比较专业的设备，只能连接上wifi使用iw dev wlan0 link 来查看
 
 ## HDIM调试
@@ -214,7 +215,7 @@ root@lubancat:~# cat /sys/class/drm/card0-HDMI-A-1/modes
 640x480
 720x400
 ```
-有了之前的调试经验和思路，我先检查了焊接的部分，其中两个ESD焊点不饱满，我就重新焊接了一下，由于HDMI外围电路很简单，我就没有检查仔细检查原理图，然后就开始了软件上的各种折腾...最后还是没搞好，然后我用万用表打了一下通断，**发现信号在ESD两端短路了**，通过查看类似芯片的手册和泰山派的原理图，我发现在ESD的两端引脚内部不是连起来的，这真是一个很不应该出现的错误，因为copy原理图符号的时候没有注意，以为esd内部是相通的，所以导致了这个问题...。
+有了之前的调试经验和思路，我先检查了焊接的部分，其中两个ESD焊点不饱满，我就重新焊接了一下，由于HDMI外围电路很简单，我就没有检查仔细检查原理图，然后就开始了软件上的各种折腾...最后还是没搞好，然后我用万用表打了一下通断，**发现信号在ESD两端断路了**，通过查看类似芯片的手册和的原理图，我发现在ESD的两端引脚内部不是连起来的，这真是一个很不应该出现的错误，因为copy原理图符号的时候没有注意，以为esd内部是相通的，所以导致了这个问题...。
 如下图
 <div align="center">
 <img  width=400 src="https://github.com/zjqsg/RK3566/blob/main/Docs/images/hdmi_esd.png">
