@@ -66,14 +66,25 @@
 ---
 
 ## 参考资料
-**原理图**
-- 本项目原理图参考泰山派RK3566、鲁班猫1N的原理图进行修改
-**Lubancat RK356x SDK**
-- 系统构建、U-boot、Kernel编译及Device Tree主要参考Lubancat方案
-**Rockchip官方资料**
-- 
-欢迎 Star、Issue 和讨论！
+本项目在开发和调试过程中参考了大量开源资料和社区解决方案，在此表示感谢。
 
+- **原理图**
+本项目原理图参考泰山派RK3566、鲁班猫1N的原理图进行修改
+  
+- **Lubancat RK356x SDK**
+系统构建、U-boot、Kernel编译及Device Tree主要参考Lubancat方案
+  
+- **Rockchip官方资料**
+
+
+### 社区与网络解决方案（重要参考）
+- AP6212 / AP6256 WiFi 模块移植问题（nvram 配置、固件加载、SDIO tuning）
+- RK809/RK817 音频（差分 MIC）调试方案
+- HDMI 输出（VOP2 + DW-HDMI）黑屏、模式切换问题
+- I2C 短路、电源域、DDR 训练等硬件调试经验
+- Device Tree 配置相关问题（主要来自 Rockchip 官方社区、Radxa、Armbian、CSDN、GitHub Issues 等）
+
+欢迎 Star、Issue 和讨论！
 如果你也在做 RK356x 自定义板，欢迎交流经验。
 
     
