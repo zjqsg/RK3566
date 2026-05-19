@@ -136,9 +136,7 @@ lib/firmwar/AP6212/nvram.txt
 到此，AP6256的固件（wifi）就适配好了，但是在我烧录镜像后，发现并没有成功，因为系统没有.ko文件，在查阅资料后，发现是普遍的是将.ko文件打包成deb包，目的便于升级和维护。
 于是在SDK目录下面发现了这些deb包，解压复制data里的modules文件，复制到系统的lib目录下，但是reboot后，发现信号非常差，由于我当时绘制射频线的时候这根线没有匹配阻抗，经过计算现在的阻抗是27欧左右，由于手头没有比较专业的设备，只能连接上wifi使用iw dev wlan0 link 来查看
 
-## 以太网调试
-
-# dts设备树适配
+# 以太网调试
 焊接完成后，先在dts文件里面添加头文件 include <dt-bindings/phy/jlsemi-dt-phy.h> 然后添加结点
 ```
 &gmac1 {
@@ -247,8 +245,7 @@ root@lubancat:~# dmesg | grep -i gmac
 并且我的
 而这个LED0/CFG_EXT的上下拉电阻配置的是RGMII接口I/O Pad的供电电压,而 LDO0=0,LDO1=1,通过手册可知外部电压为1.8V，也就是芯片28引脚的DVDD_RG 这个引脚的电压来源。
 并且我的23引脚电阻没有焊接，在将23引脚上拉后，以太网通信正常，由于身边条件有限，只能通过iperf工具将网线连接电脑测试了一下，如下图
-<img src="https://github.com/zjqsg/RK3566/blob/main/Hardware/Pictures/100Mbps_TCP_test.jpg">
-
+<img src="https://github.com/zjqsg/RK3566/blob/main/Docs/images/100Mbps_TCP_test.jpg">
 ## HDIM调试
   bringup时使用是Debian lite的镜像，为了使用HDMI，我重新构建了xfec的镜像系统，我先通过VNC远程桌面测试了一下，结果很好，成功的显示了桌面，然后我在dts里面使用了鲁班猫的HDMI头文件，但是在连接到显示器的时候出现了问题，部分日志如下，在uboot阶段
 ```
