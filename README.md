@@ -37,7 +37,7 @@
 ## 快速导航
 
 - [详细 Bring-up 记录](./Docs/bringup-log.md)
-- [硬件文件](./Hardware/)
+- [硬件文件](./Hardware/SCH)
 - [设备树文件](./software/dts/rk3566-myboard.dts)
 - [实物照片](./images/)
 
