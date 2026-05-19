@@ -65,6 +65,13 @@
 - 压力测试
 ---
 
+## 参考资料
+**原理图**
+- 本项目原理图参考泰山派RK3566、鲁班猫1N的原理图进行修改
+**Lubancat RK356x SDK**
+- 系统构建、U-boot、Kernel编译及Device Tree主要参考Lubancat方案
+**Rockchip官方资料**
+- 
 欢迎 Star、Issue 和讨论！
 
 如果你也在做 RK356x 自定义板，欢迎交流经验。
