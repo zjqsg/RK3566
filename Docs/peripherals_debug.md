@@ -137,6 +137,7 @@ lib/firmwar/AP6212/nvram.txt
 于是在SDK目录下面发现了这些deb包，解压复制data里的modules文件，复制到系统的lib目录下，但是reboot后，发现信号非常差，由于我当时绘制射频线的时候这根线没有匹配阻抗，经过计算现在的阻抗是27欧左右，由于手头没有比较专业的设备，只能连接上wifi使用iw dev wlan0 link 来查看
 
 ## 以太网调试
+
 # dts设备树适配
 焊接完成后，先在dts文件里面添加头文件 include <dt-bindings/phy/jlsemi-dt-phy.h> 然后添加结点
 ```
