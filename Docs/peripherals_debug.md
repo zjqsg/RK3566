@@ -47,7 +47,7 @@ USB2.0/3.0的调试比较简单，在焊接完成外围电路后，在DTS里面�
 	status = "okay";
 };
 ```
-烧录后
+烧录后，插入u盘可正常读取文件，并且插入鼠标等设备也可以正常识别。
 
 # AP6212/6256无线网卡
 ## 1.固件适配
@@ -135,6 +135,118 @@ lib/firmwar/AP6212/nvram.txt
 ```
 到此，AP6256的固件（wifi）就适配好了，但是在我烧录镜像后，发现并没有成功，因为系统没有.ko文件，在查阅资料后，发现是普遍的是将.ko文件打包成deb包，目的便于升级和维护。
 于是在SDK目录下面发现了这些deb包，解压复制data里的modules文件，复制到系统的lib目录下，但是reboot后，发现信号非常差，由于我当时绘制射频线的时候这根线没有匹配阻抗，经过计算现在的阻抗是27欧左右，由于手头没有比较专业的设备，只能连接上wifi使用iw dev wlan0 link 来查看
+
+## 以太网调试
+# dts设备树适配
+焊接完成后，先在dts文件里面添加头文件 include <dt-bindings/phy/jlsemi-dt-phy.h> 然后添加结点
+```
+&gmac1 {
+	phy-mode = "rgmii";
+	clock_in_out = "output";
+
+	snps,reset-gpio = <&gpio0 RK_PC3 GPIO_ACTIVE_LOW>;
+	snps,reset-active-low;
+	/* Reset time is 100ms, 100ms */
+	snps,reset-delays-us = <0 75000 100000>;
+
+	assigned-clocks = <&cru SCLK_GMAC1_RX_TX>, <&cru SCLK_GMAC1>;
+	assigned-clock-parents = <&cru SCLK_GMAC1_RGMII_SPEED>, <&cru CLK_MAC1_2TOP>;
+	assigned-clock-rates = <0>, <125000000>;
+
+	pinctrl-names = "default";
+	pinctrl-0 = <&gmac1m1_miim
+			 &gmac1m1_tx_bus2_level3
+			 &gmac1m1_rx_bus2
+			 &gmac1m1_rgmii_clk_level2
+			 &gmac1m1_rgmii_bus_level3>;
+
+	// RTL8211F
+	// tx_delay = <0x24>;
+	// rx_delay = <0x08>;
+
+	// JL2101
+	// tx_delay = <0x1a>;
+	// rx_delay = <0x08>;
+
+	tx_delay = <0x24>;
+	rx_delay = <0x08>;
+
+	phy-handle = <&rgmii_phy1>;
+	status = "okay";
+};
+
+&mdio1 {
+	rgmii_phy1: phy@0 {
+		compatible = "ethernet-phy-ieee802.3-c22";
+		reg = <0x0>;
+		jl2xxx,led-enable = <(JL2XXX_LED_STATIC_OP_EN | JL1XXX_LED_MODE_EN)>;
+		jl2xxx,led-mode = <(JL2XXX_LED1_LINK10  | \
+				 JL2XXX_LED1_LINK100  | \
+				 JL2XXX_LED1_LINK1000 | \
+				 JL2XXX_LED2_LINK10   | \
+				 JL2XXX_LED2_LINK100  | \
+				 JL2XXX_LED2_LINK1000 | \
+				 JL2XXX_LED2_ACTIVITY )>;
+	};
+};
+
+```
+但是在替换掉设备树文件后，日志中有
+```
+root@lubancat:~# dmesg | grep -i gmac
+[    0.217992] rk_gmac-dwmac fe010000.ethernet: Looking up phy-supply from device tree
+[    0.218010] rk_gmac-dwmac fe010000.ethernet: Looking up phy-supply property in node /ethernet@fe010000 failed
+[    0.218021] rk_gmac-dwmac fe010000.ethernet: no regulator found
+[    0.218057] rk_gmac-dwmac fe010000.ethernet: clock input or output? (output).
+[    0.218080] rk_gmac-dwmac fe010000.ethernet: TX delay(0x24).
+[    0.218099] rk_gmac-dwmac fe010000.ethernet: RX delay(0x8).
+[    0.218124] rk_gmac-dwmac fe010000.ethernet: integrated PHY? (no).
+[    0.223190] rk_gmac-dwmac fe010000.ethernet: init for RGMII
+[    0.223435] rk_gmac-dwmac fe010000.ethernet: User ID: 0x30, Synopsys ID: 0x51
+[    0.223463] rk_gmac-dwmac fe010000.ethernet:         DWMAC4/5
+[    0.223481] rk_gmac-dwmac fe010000.ethernet: DMA HW capability register supported
+[    0.223501] rk_gmac-dwmac fe010000.ethernet: RX Checksum Offload Engine supported
+[    0.223522] rk_gmac-dwmac fe010000.ethernet: TX Checksum insertion supported
+[    0.223540] rk_gmac-dwmac fe010000.ethernet: Wake-Up On Lan supported
+[    0.223587] rk_gmac-dwmac fe010000.ethernet: TSO supported
+[    0.223607] rk_gmac-dwmac fe010000.ethernet: Enable RX Mitigation via HW Watchdog Timer
+[    0.223630] rk_gmac-dwmac fe010000.ethernet: TSO feature enabled
+[    5.069970] rk_gmac-dwmac fe010000.ethernet eth0: Could not attach to PHY
+[    5.070009] rk_gmac-dwmac fe010000.ethernet eth0: stmmac_open: Cannot attach to PHY (error: -19)
+[    6.133653] rk_gmac-dwmac fe010000.ethernet eth0: Could not attach to PHY
+[    6.133671] rk_gmac-dwmac fe010000.ethernet eth0: stmmac_open: Cannot attach to PHY (error: -19)
+[    6.185072] rk_gmac-dwmac fe010000.ethernet eth0: Could not attach to PHY
+[    6.185091] rk_gmac-dwmac fe010000.ethernet eth0: stmmac_open: Cannot attach to PHY (error: -19)
+[    6.205285] rk_gmac-dwmac fe010000.ethernet eth0: Could not attach to PHY
+[    6.205305] rk_gmac-dwmac fe010000.ethernet eth0: stmmac_open: Cannot attach to PHY (error: -19)
+[    6.225603] rk_gmac-dwmac fe010000.ethernet eth0: Could not attach to PHY
+[    6.225620] rk_gmac-dwmac fe010000.ethernet eth0: stmmac_open: Cannot attach to PHY (error: -19)
+[  306.103087] rk_gmac-dwmac fe010000.ethernet eth0: Could not attach to PHY
+[  306.103116] rk_gmac-dwmac fe010000.ethernet eth0: stmmac_open: Cannot attach to PHY (error: -19)
+[  306.123167] rk_gmac-dwmac fe010000.ethernet eth0: Could not attach to PHY
+[  306.123193] rk_gmac-dwmac fe010000.ethernet eth0: stmmac_open: Cannot attach to PHY (error: -19)
+[  306.142511] rk_gmac-dwmac fe010000.ethernet eth0: Could not attach to PHY
+[  306.142536] rk_gmac-dwmac fe010000.ethernet eth0: stmmac_open: Cannot attach to PHY (error: -19)
+[  306.161364] rk_gmac-dwmac fe010000.ethernet eth0: Could not attach to PHY
+[  306.161393] rk_gmac-dwmac fe010000.ethernet eth0: stmmac_open: Cannot attach to PHY (error: -19)
+```
+ 驱动初始化正常,但是最后还是连接不到PHY,然后万用表测量了3.3V .1.8V和RTL8211F的LDO内部电压输出引脚，8211F的LDO输出引脚发现电压为3.2v左右，由于LDO输出引脚的旁边是3.3V的电源输入，我以为是连锡导致的情况，但是通过通断档发现并没有短路，于是我开始检查原理图，并且和鲁班猫的原理图对比，确实发现电阻配置不一样，经过对比并且查询手册发现，我的
+ ```
+ LED0/CFG_EXT = 0
+ LED1/CFG_LDO0 = 0
+ LED2/CFG_LDO1 = 1
+```
+以上配置是配置外部IO
+而鲁班猫的是
+ ```
+ LED0/CFG_EXT = 1
+ LED1/CFG_LDO0 = 0
+ LED2/CFG_LDO1 = 1
+```
+并且我的
+而这个LED0/CFG_EXT的上下拉电阻配置的是RGMII接口I/O Pad的供电电压,而 LDO0=0,LDO1=1,通过手册可知外部电压为1.8V，也就是芯片28引脚的DVDD_RG 这个引脚的电压来源。
+并且我的23引脚电阻没有焊接，在将23引脚上拉后，以太网通信正常，由于身边条件有限，只能使用电脑连接网线测试了一下，如下图，100MB
+
 
 ## HDIM调试
   bringup时使用是Debian lite的镜像，为了使用HDMI，我重新构建了xfec的镜像系统，我先通过VNC远程桌面测试了一下，结果很好，成功的显示了桌面，然后我在dts里面使用了鲁班猫的HDMI头文件，但是在连接到显示器的时候出现了问题，部分日志如下，在uboot阶段
